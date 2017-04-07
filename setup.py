@@ -20,7 +20,7 @@ setup(
     version=__version__,
     packages=find_packages(),
     include_package_data=True,
-    license='Proprietary', 
+    license='Other/Proprietary License',
     description='A Django app.',
     long_description=open('README.rst').read(),
     author='Moritz Pfeiffer',
