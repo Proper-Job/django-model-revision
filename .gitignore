@@ -1,0 +1,8 @@
+*.egg*
+dev.py
+build
+dist
+.DS_Store
+*.pyc
+*.log
+.idea/*

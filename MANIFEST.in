@@ -1,0 +1,8 @@
+include LICENSE *.rst *.txt
+
+graft model_revisions
+
+recursive-include docs *
+
+global-exclude __pycache__
+global-exclude *.py[co]
