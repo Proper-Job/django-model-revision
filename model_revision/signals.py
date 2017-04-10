@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from model_revisions.models import Revision
+from model_revision.models import Revision
 
 
 def pre_save_callback(sender, **kwargs):

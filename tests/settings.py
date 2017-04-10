@@ -6,7 +6,7 @@ TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 SECRET_KEY = 'fake-key'
 INSTALLED_APPS = [
     'tests',
-    'model_revisions',
+    'model_revision',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

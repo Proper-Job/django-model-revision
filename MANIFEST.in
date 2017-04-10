@@ -1,6 +1,6 @@
 include LICENSE *.rst *.txt
 
-graft model_revisions
+graft model_revision
 
 recursive-include docs *
 

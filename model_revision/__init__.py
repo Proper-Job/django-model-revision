@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import get_version
 
-default_app_config = 'model_revisions.apps.ModelRevisionsConfig'
+default_app_config = 'model_revision.apps.ModelRevisionConfig'
 
 __all__ = [
 
