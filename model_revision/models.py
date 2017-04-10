@@ -1,5 +1,6 @@
 import json
 from decimal import Decimal
+from itertools import groupby
 
 import iso8601
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -8,6 +9,10 @@ from django.contrib.postgres.fields import JSONField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.utils.translation import ugettext, ugettext_lazy as _
+
+
+class NOT_PROVIDED:
+    pass
 
 
 def get_field_data(instance):
@@ -31,36 +36,46 @@ def get_field_data(instance):
 
 class RevisionQuerySet(models.QuerySet):
 
-    def get_historical_values(self, field, asc=False, include_dates=False):
-        if asc:
-            qs = self.order_by('created_at')
-        else:
-            qs = self.order_by('-created_at')
-
+    def get_historical_values(self, field, current_value=NOT_PROVIDED, asc=False, include_dates=False):
+        """
+        Computes the historical values for the specified field over this QuerySet.
+        Consecutive identical values are removed from the history, i.e.: [1,2,2,3] is turned into [1,2,3].
+        The latest revision's field value is excluded from the list of historical values if it is equivalent to 
+        the current field value.
+        :param field: The name of the field for which to compute the values
+        :param current_value: Used to determine whether or not to include the value of the latest revision. 
+        If current_value is provided and is equal to the value of the latest revision, the latest revision is omitted.
+        :param asc: If True results are ordered from earliest revision to latest.
+        :param include_dates: Set to True to return a list of tuples of the form (revision_date_time, value)
+        :return: List of values or list of tuples, depending on the value of include_dates.
+        """
+        qs = self.order_by('created_at')
         values = []
-
-        def get_last_value():
-            if len(values) == 0:
-                return None
-            else:
-                value = values[-1]
-                if type(value) == tuple:
-                    return value[0]
-                else:
-                    return value
-
-        def add_value(revision, value):
-            last_value = get_last_value()
-            if value != last_value:
-                if include_dates:
-                    values.append((revision.created_at, value))
-                else:
-                    values.append(value)
-
         for revision in qs:
-            add_value(revision, revision.get_data().get(field, None))
+            value = revision.get_data().get(field, None)
+            if include_dates:
+                values.append((revision.created_at, value))
+            else:
+                values.append(value)
 
-        return values
+        # Group consecutive values: [1,1,2,2,1,1] -> [1,2,1]
+        if include_dates:
+            grouped_values = []
+            for k, g in groupby(values, key=lambda x: x[1]):
+                grouped_values.append((list(g)[-1][0], k))
+        else:
+            grouped_values = [k for k, g in groupby(values)]
+
+        # Pop off latest value if it's identical to the current value
+        if current_value != NOT_PROVIDED and len(grouped_values) > 0:
+            value = grouped_values[-1][1] if include_dates else grouped_values[-1]
+            if value == current_value:
+                grouped_values = grouped_values[:-1]
+
+        if asc:
+            return grouped_values
+        else:
+            return list(reversed(grouped_values))
 
 
 class RevisionManager(models.Manager):
@@ -91,24 +106,23 @@ class Revision(models.Model):
     def get_data(self):
         revision_data = {}
         for key, value in self.data.items():
-            if value is not None:
-                try:
-                    field = self.content_object._meta.get_field(key)
-                    field_type = type(field)
-                    if field_type in (models.DateField, models.TimeField, models.DateTimeField):
-                        dt_value = iso8601.parse_date(value)
-                        if field_type == models.DateField:
-                            revision_data[key] = dt_value.date()
-                        elif field_type == models.DateField:
-                            revision_data[key] = dt_value.time()
-                        else:
-                            revision_data[key] = dt_value
-                    elif field_type == models.DecimalField:
-                        revision_data[key] = Decimal(value)
-                except:
-                    pass
-            else:
-                revision_data[key] = value
+            try:
+                field = self.content_object._meta.get_field(key)
+                field_type = type(field)
+                if field_type in (models.DateField, models.TimeField, models.DateTimeField):
+                    dt_value = iso8601.parse_date(value)
+                    if field_type == models.DateField:
+                        revision_data[key] = dt_value.date()
+                    elif field_type == models.DateField:
+                        revision_data[key] = dt_value.time()
+                    else:
+                        revision_data[key] = dt_value
+                elif field_type == models.DecimalField:
+                    revision_data[key] = Decimal(value)
+                else:
+                    revision_data[key] = value
+            except:
+                pass
         return revision_data
 
     def __str__(self):
