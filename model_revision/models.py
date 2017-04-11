@@ -36,7 +36,7 @@ def get_field_data(instance):
 
 class RevisionQuerySet(models.QuerySet):
 
-    def get_historical_values(self, field, current_value=NOT_PROVIDED, asc=False, include_dates=False):
+    def get_historical_values(self, field, current_value=NOT_PROVIDED, asc=True, include_dates=False):
         """
         Computes the historical values for the specified field over this QuerySet.
         Consecutive identical values are removed from the history, i.e.: [1,2,2,3] is turned into [1,2,3].
@@ -122,13 +122,16 @@ class Revision(models.Model):
                 else:
                     revision_data[key] = value
             except:
-                pass
+                revision_data[key] = value
         return revision_data
 
     def __str__(self):
-        return ugettext('Revision for {} from {}'.format(self.content_object, self.created_at))
+        return ugettext('Revision for {} from {}'.format(
+            self.content_object,
+            self.created_at.strftime('%Y-%m-%d %H:%M:%S'))
+        )
 
     class Meta:
-        ordering = ('-created_at',)
+        ordering = ('created_at',)
         verbose_name = _('Revision')
         verbose_name_plural = _('Revisions')
