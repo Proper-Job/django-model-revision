@@ -1,6 +1,6 @@
 import os
 
-from model_revisions import __version__
+from model_revision import __version__
 from setuptools import setup, find_packages
 
 install_requires = [
@@ -16,7 +16,7 @@ documentation_extras = [
 testing_extras = []
 
 setup(
-    name='django-model-revisions',
+    name='django-model-revision',
     version=__version__,
     packages=find_packages(),
     include_package_data=True,

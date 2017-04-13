@@ -2,7 +2,9 @@ import json
 from decimal import Decimal
 from itertools import groupby
 
+import datetime
 import iso8601
+import time
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
@@ -109,19 +111,24 @@ class Revision(models.Model):
             try:
                 field = self.content_object._meta.get_field(key)
                 field_type = type(field)
-                if field_type in (models.DateField, models.TimeField, models.DateTimeField):
+                if field_type in (models.DateField, models.DateTimeField):
                     dt_value = iso8601.parse_date(value)
                     if field_type == models.DateField:
                         revision_data[key] = dt_value.date()
-                    elif field_type == models.DateField:
-                        revision_data[key] = dt_value.time()
                     else:
                         revision_data[key] = dt_value
+                elif field_type == models.TimeField:
+                    try:
+                        st = time.strptime(value, '%H:%M:%S')
+                        t = datetime.time(hour=st.tm_hour, minute=st.tm_min, second=st.tm_sec)
+                    except Exception as e:
+                        t = None
+                    revision_data[key] = t
                 elif field_type == models.DecimalField:
                     revision_data[key] = Decimal(value)
                 else:
                     revision_data[key] = value
-            except:
+            except Exception as e:
                 revision_data[key] = value
         return revision_data
 
