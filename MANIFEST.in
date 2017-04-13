@@ -1,6 +1,8 @@
 include LICENSE *.rst *.txt
 
 graft model_revision
+prune pycharm
+prune tests
 
 recursive-include docs *
 
