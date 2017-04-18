@@ -4,7 +4,7 @@ from model_revision import __version__
 from setuptools import setup, find_packages
 
 install_requires = [
-    'django>1.10.1<1.11',
+    'django>1.10.1,<1.11',
 ]
 
 # Documentation dependencies
