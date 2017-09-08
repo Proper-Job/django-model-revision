@@ -1,4 +1,4 @@
-0.0.3 (2017-09-08)
+0.0.4 (2017-09-08)
 ------------------
 
 -   Fixed version number requiring django on install.
