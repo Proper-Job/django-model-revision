@@ -19,6 +19,7 @@ setup(
     include_package_data=True,
     license='Other/Proprietary License',
     description='A Django app.',
+    url='https://github.com/Proper-Job/django-model-revision',
     long_description=open('README.rst').read(),
     author='Moritz Pfeiffer',
     author_email='moritz.pfeiffer@alp-phone.ch',
