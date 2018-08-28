@@ -14,7 +14,7 @@ testing_extras = []
 
 setup(
     name='django-model-revision',
-    version='0.0.5',
+    version='0.0.6',
     packages=find_packages(),
     include_package_data=True,
     license='Other/Proprietary License',
