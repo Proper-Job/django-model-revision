@@ -14,7 +14,7 @@ testing_extras = []
 
 setup(
     name='django-model-revision',
-    version='0.0.7',
+    version='0.0.8',
     packages=find_packages(),
     include_package_data=True,
     license='MIT License',
@@ -29,7 +29,7 @@ setup(
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',
-        'License :: Other/Proprietary License',
+        'License :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3.4',
