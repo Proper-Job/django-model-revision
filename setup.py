@@ -17,7 +17,7 @@ setup(
     version='0.0.6',
     packages=find_packages(),
     include_package_data=True,
-    license='Other/Proprietary License',
+    license='MIT License',
     description='A Django app.',
     url='https://github.com/Proper-Job/django-model-revision',
     long_description=open('README.rst').read(),
